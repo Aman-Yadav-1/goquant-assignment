@@ -1,4 +1,3 @@
-
 import { MarketData } from '@/types/market';
 import { Card } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, BarChart3, Activity } from 'lucide-react';
@@ -29,7 +28,15 @@ export const CalendarTooltip = ({ date, data, className = '' }: CalendarTooltipP
   };
 
   return (
-    <Card className={`p-4 shadow-lg border-2 min-w-64 ${className}`}>
+    <Card
+      className={`p-4 min-w-64 rounded-lg shadow-2xl border bg-white z-50 ${className}`}
+      style={{
+        boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+        background: '#fff',
+        border: '1px solid #e5e7eb',
+        position: 'relative',
+      }}
+    >
       <div className="space-y-3">
         {/* Date Header */}
         <div className="text-center border-b pb-2">

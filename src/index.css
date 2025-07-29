@@ -277,4 +277,8 @@ All colors MUST be HSL.
   .market-indicator-neutral {
     @apply bg-muted text-muted-foreground;
   }
+
+  .ring-warning {
+    box-shadow: 0 0 0 2px hsl(var(--warning));
+  }
 }

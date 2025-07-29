@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Calendar } from '@/components/Calendar';
 import { DataDashboard } from '@/components/DataDashboard';
@@ -7,7 +6,9 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useMarketData } from '@/hooks/useMarketData';
 import { TimeFrame, MarketData } from '@/types/market';
 import { Card } from '@/components/ui/card';
-import { TrendingUp, BarChart3, Calendar as CalendarIcon } from 'lucide-react';
+import { TrendingUp, BarChart3, Calendar as CalendarIcon, Sun, Moon, Download, FileText } from 'lucide-react';
+import { saveAs } from 'file-saver';
+import html2canvas from 'html2canvas';
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -15,8 +16,29 @@ const Index = () => {
   const [timeFrame, setTimeFrame] = useState<TimeFrame>('daily');
   const [symbol, setSymbol] = useState('BTCUSDT');
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareRange, setCompareRange] = useState<{ start: Date; end: Date } | null>(null);
+  const [alert, setAlert] = useState<string | null>(null);
 
   const { data, loading, error } = useMarketData(symbol, timeFrame);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
+
+  useEffect(() => {
+    if (data && currentMonth) {
+      // Only show alert for high volatility in the current month
+      const highVol = data.find(d =>
+        d.volatility > 5 &&
+        d.date.getMonth() === currentMonth.getMonth() &&
+        d.date.getFullYear() === currentMonth.getFullYear()
+      );
+      if (highVol) setAlert(`High volatility detected on ${highVol.date.toLocaleDateString()}`);
+      else setAlert(null);
+    }
+  }, [data, currentMonth]);
 
   const handleDateSelect = (date: Date) => {
     setSelectedDate(date);
@@ -26,6 +48,25 @@ const Index = () => {
   const handleRangeSelect = (range: { start: Date; end: Date }) => {
     setSelectedRange(range);
     setSelectedDate(null);
+  };
+
+  const handleExportCSV = () => {
+    if (!data) return;
+    const csv = [
+      Object.keys(data[0]).join(','),
+      ...data.map(row => Object.values(row).join(','))
+    ].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    saveAs(blob, `${symbol}_${timeFrame}.csv`);
+  };
+
+  const handleExportPNG = async () => {
+    const node = document.getElementById('main-content');
+    if (!node) return;
+    const canvas = await html2canvas(node);
+    canvas.toBlob(blob => {
+      if (blob) saveAs(blob, `${symbol}_${timeFrame}.png`);
+    });
   };
 
   return (
@@ -45,15 +86,56 @@ const Index = () => {
             Interactive calendar for visualizing historical volatility, liquidity, and performance data across different market conditions
           </p>
         </div>
+        {/* Controls below title */}
+        <div className="flex flex-wrap justify-center items-center gap-4 mb-8">
+          {/* Theme Selector */}
+          <button
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className={`rounded-full p-2 shadow transition-colors border border-border bg-card hover:bg-primary/10 focus:outline-none
+              ${theme === 'dark' ? 'bg-background text-yellow-400' : 'bg-card text-blue-600'}`}
+            style={{ width: 44, height: 44 }}
+          >
+            {theme === 'dark' ? (
+              <Sun size={22} />
+            ) : (
+              <Moon size={22} />
+            )}
+          </button>
+          {/* Export Buttons */}
+          <button
+            onClick={handleExportCSV}
+            className="rounded-full p-2 shadow border border-border bg-card hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors flex items-center justify-center"
+            style={{ width: 44, height: 44 }}
+            aria-label="Export CSV"
+          >
+            <FileText className="text-blue-600 dark:text-blue-400" size={20} />
+          </button>
+          <button
+            onClick={handleExportPNG}
+            className="rounded-full p-2 shadow border border-border bg-card hover:bg-green-100 dark:hover:bg-green-900 transition-colors flex items-center justify-center"
+            style={{ width: 44, height: 44 }}
+            aria-label="Export PNG"
+          >
+            <Download className="text-green-600 dark:text-green-400" size={20} />
+          </button>
+          {/* Comparison Toggle */}
+          <label className="flex items-center gap-2 cursor-pointer select-none font-medium text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={compareMode}
+              onChange={e => setCompareMode(e.target.checked)}
+              className="accent-primary w-4 h-4 rounded border border-border"
+            />
+            <span>Compare Periods</span>
+          </label>
+        </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="financial-card-gradient p-6 text-primary-foreground border-0">
-            <div 
-              className="relative z-10 flex items-center gap-4"
-              style={{ background: 'var(--gradient-primary)' }}
-            >
-              <div className="p-2 rounded-lg bg-white/20">
+          <Card className="p-6 bg-blue-600 text-white border-0 shadow-md">
+            <div className="relative z-10 flex items-center gap-4">
+              <div className="p-2 rounded-lg bg-white/30">
                 <TrendingUp size={24} />
               </div>
               <div>
@@ -62,12 +144,9 @@ const Index = () => {
               </div>
             </div>
           </Card>
-          <Card className="financial-card-gradient p-6 text-accent-foreground border-0">
-            <div 
-              className="relative z-10 flex items-center gap-4"
-              style={{ background: 'var(--gradient-success)' }}
-            >
-              <div className="p-2 rounded-lg bg-white/20">
+          <Card className="p-6 bg-green-600 text-white border-0 shadow-md">
+            <div className="relative z-10 flex items-center gap-4">
+              <div className="p-2 rounded-lg bg-white/30">
                 <BarChart3 size={24} />
               </div>
               <div>
@@ -76,12 +155,9 @@ const Index = () => {
               </div>
             </div>
           </Card>
-          <Card className="financial-card-gradient p-6 text-info-foreground border-0">
-            <div 
-              className="relative z-10 flex items-center gap-4"
-              style={{ background: 'var(--gradient-info)' }}
-            >
-              <div className="p-2 rounded-lg bg-white/20">
+          <Card className="p-6 bg-indigo-600 text-white border-0 shadow-md">
+            <div className="relative z-10 flex items-center gap-4">
+              <div className="p-2 rounded-lg bg-white/30">
                 <CalendarIcon size={24} />
               </div>
               <div>
@@ -103,7 +179,7 @@ const Index = () => {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div id="main-content" className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Calendar */}
           <div className="lg:col-span-2">
             <Card className="financial-card p-8">
@@ -134,6 +210,8 @@ const Index = () => {
                   onDateSelect={handleDateSelect}
                   onRangeSelect={handleRangeSelect}
                   onMonthChange={setCurrentMonth}
+                  compareMode={compareMode}
+                  compareRange={compareRange}
                 />
               )}
             </Card>
@@ -147,12 +225,25 @@ const Index = () => {
               data={data || []}
               symbol={symbol}
               timeFrame={timeFrame}
+              compareMode={compareMode}
+              compareRange={compareRange}
             />
           </div>
         </div>
+
+        {/* Volatility Alert at bottom */}
+        {alert && (
+          <div className="fixed left-0 right-0 bottom-0 flex justify-center z-50 pointer-events-none">
+            <Card className="flex items-center gap-2 px-4 py-2 mb-4 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 font-semibold shadow-lg pointer-events-auto">
+              <Moon className="text-red-400 dark:text-red-300" size={18} />
+              <span>{alert}</span>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
 };
+
 
 export default Index;

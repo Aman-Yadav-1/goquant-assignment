@@ -1,9 +1,9 @@
-
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
 import { MarketData, TimeFrame } from '@/types/market';
 import { Button } from '@/components/ui/button';
 import { CalendarTooltip } from '@/components/CalendarTooltip';
+import { createPortal } from 'react-dom';
 
 interface CalendarProps {
   data: MarketData[];
@@ -14,6 +14,8 @@ interface CalendarProps {
   onDateSelect: (date: Date) => void;
   onRangeSelect: (range: { start: Date; end: Date }) => void;
   onMonthChange: (month: Date) => void;
+  compareMode?: boolean;
+  compareRange?: { start: Date; end: Date } | null;
 }
 
 export const Calendar = ({
@@ -25,9 +27,17 @@ export const Calendar = ({
   onDateSelect,
   onRangeSelect,
   onMonthChange,
+  compareMode = false,
+  compareRange = null,
 }: CalendarProps) => {
   const [hoveredDate, setHoveredDate] = useState<Date | null>(null);
   const [rangeStart, setRangeStart] = useState<Date | null>(null);
+  const calendarGridRef = useRef<HTMLDivElement>(null);
+  const [tooltipInfo, setTooltipInfo] = useState<{
+    date: Date;
+    marketData: MarketData;
+    anchorRect: DOMRect;
+  } | null>(null);
 
   // Create a map of date to market data for quick lookup
   const dataMap = useMemo(() => {
@@ -91,8 +101,15 @@ export const Calendar = ({
   const days = getDaysInMonth(currentMonth);
   const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
+  // Only highlight days in the current month with high volatility
+  const anomalyDays = useMemo(() => {
+    return data
+      .filter(d => d.date.getMonth() === currentMonth.getMonth() && d.volatility > 5)
+      .map(d => d.date.toDateString());
+  }, [data, currentMonth]);
+
   return (
-    <div className="w-full">
+    <div className="w-full relative" style={{ zIndex: 50 }}>
       {/* Calendar Header */}
       <div className="flex items-center justify-between mb-8">
         <Button
@@ -124,7 +141,7 @@ export const Calendar = ({
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-2">
+      <div ref={calendarGridRef} className="grid grid-cols-7 gap-2 relative">
         {days.map((date) => {
           const dateKey = date.toDateString();
           const marketData = dataMap.get(dateKey);
@@ -133,21 +150,34 @@ export const Calendar = ({
           const isSelected = selectedDate?.toDateString() === dateKey;
           const isInRange = selectedRange &&
             date >= selectedRange.start && date <= selectedRange.end;
+          const isAnomaly = anomalyDays.includes(dateKey);
 
           return (
             <div
               key={dateKey}
               className={`
-                calendar-cell h-24 rounded-lg
+                calendar-cell h-24 rounded-lg relative z-10
                 ${isCurrentMonth ? 'bg-card' : 'bg-muted/20'}
                 ${isSelected ? 'calendar-cell-selected' : ''}
                 ${isInRange ? 'calendar-cell-in-range' : ''}
                 ${isToday ? 'calendar-cell-today' : ''}
                 ${marketData ? getVolatilityColor(marketData.volatility) : ''}
+                ${isAnomaly ? 'ring-2 ring-warning' : ''}
               `}
               onClick={() => handleDateClick(date)}
-              onMouseEnter={() => setHoveredDate(date)}
-              onMouseLeave={() => setHoveredDate(null)}
+              onMouseEnter={e => {
+                setHoveredDate(date);
+                if (marketData) {
+                  const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+                  setTooltipInfo({ date, marketData, anchorRect: rect });
+                } else {
+                  setTooltipInfo(null);
+                }
+              }}
+              onMouseLeave={() => {
+                setHoveredDate(null);
+                setTooltipInfo(null);
+              }}
             >
               {/* Date Number */}
               <div className={`
@@ -194,19 +224,44 @@ export const Calendar = ({
                   </div>
                 </div>
               )}
-
-              {/* Tooltip */}
-              {hoveredDate?.toDateString() === dateKey && marketData && (
-                <CalendarTooltip
-                  date={date}
-                  data={marketData}
-                  className="absolute z-10 -top-2 left-full ml-2"
-                />
+              {compareMode && compareRange && date >= compareRange.start && date <= compareRange.end && (
+                <div className="absolute inset-0 border-2 border-accent pointer-events-none"></div>
               )}
             </div>
           );
         })}
       </div>
+      {/* Portal-based tooltip rendering */}
+      {tooltipInfo &&
+        createPortal(
+          <div
+            style={{
+              position: "absolute",
+              zIndex: 9999,
+              top:
+                tooltipInfo.anchorRect.top -
+                document.body.getBoundingClientRect().top +
+                tooltipInfo.anchorRect.height / 2 -
+                24,
+              left:
+                tooltipInfo.anchorRect.right + 340 < window.innerWidth
+                  ? tooltipInfo.anchorRect.right -
+                    document.body.getBoundingClientRect().left +
+                    8
+                  : tooltipInfo.anchorRect.left -
+                    document.body.getBoundingClientRect().left -
+                    332,
+              pointerEvents: "none",
+            }}
+          >
+            <CalendarTooltip
+              date={tooltipInfo.date}
+              data={tooltipInfo.marketData}
+            />
+          </div>,
+          document.body
+        )
+      }
 
       {/* Legend */}
       <div className="mt-8 p-6 glass rounded-xl">
@@ -229,6 +284,10 @@ export const Calendar = ({
               <div className="flex items-center gap-3">
                 <div className="w-4 h-4 volatility-high rounded border border-border"></div>
                 <span className="text-muted-foreground">High (&gt;5%)</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 ring-2 ring-warning rounded border border-warning"></div>
+                <span className="text-warning-foreground text-xs">Highlighted days have high volatility (&gt;5%) in this month.</span>
               </div>
             </div>
           </div>
