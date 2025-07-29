@@ -1,0 +1,280 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 216 22% 98%;
+    --foreground: 216 19% 16%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 216 19% 16%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 216 19% 16%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 216 19% 16%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 142 76% 36%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
+
+    /* Financial app specific colors */
+    --success: 142 76% 36%;
+    --success-foreground: 210 40% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 210 40% 98%;
+    --info: 217 91% 60%;
+    --info-foreground: 210 40% 98%;
+
+    /* Market colors */
+    --bullish: 142 76% 36%;
+    --bearish: 0 84% 60%;
+    --neutral: 215 16% 47%;
+
+    /* Volatility colors */
+    --volatility-low: 142 76% 36%;
+    --volatility-medium: 38 92% 50%;
+    --volatility-high: 0 84% 60%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 46%));
+    --gradient-danger: linear-gradient(135deg, hsl(0 84% 60%), hsl(0 84% 70%));
+    --gradient-info: linear-gradient(135deg, hsl(217 91% 60%), hsl(142 76% 36%));
+    --gradient-background: linear-gradient(135deg, hsl(216 22% 98%), hsl(214 32% 95%));
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(216 19% 16% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(216 19% 16% / 0.1), 0 2px 4px -1px hsl(216 19% 16% / 0.06);
+    --shadow-lg: 0 10px 15px -3px hsl(216 19% 16% / 0.1), 0 4px 6px -2px hsl(216 19% 16% / 0.05);
+    --shadow-xl: 0 20px 25px -5px hsl(216 19% 16% / 0.1), 0 10px 10px -5px hsl(216 19% 16% / 0.04);
+
+    /* Animation variables */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 98%;
+
+    --card: 224 71% 4%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 224 71% 4%;
+
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 215 28% 17%;
+    --muted-foreground: 217 11% 65%;
+
+    --accent: 142 76% 36%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 217 91% 60%;
+
+    /* Financial app specific colors - dark mode */
+    --success: 142 76% 36%;
+    --success-foreground: 210 40% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 210 40% 98%;
+    --info: 217 91% 60%;
+    --info-foreground: 210 40% 98%;
+
+    /* Market colors - dark mode */
+    --bullish: 142 76% 36%;
+    --bearish: 0 63% 31%;
+    --neutral: 217 11% 65%;
+
+    /* Volatility colors - dark mode */
+    --volatility-low: 142 76% 36%;
+    --volatility-medium: 38 92% 50%;
+    --volatility-high: 0 63% 31%;
+
+    /* Gradients - dark mode */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 46%));
+    --gradient-danger: linear-gradient(135deg, hsl(0 63% 31%), hsl(0 63% 41%));
+    --gradient-info: linear-gradient(135deg, hsl(217 91% 60%), hsl(142 76% 36%));
+    --gradient-background: linear-gradient(135deg, hsl(222 47% 7%), hsl(215 28% 17%));
+
+    /* Shadows - dark mode */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.1);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.2), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.3), 0 4px 6px -2px hsl(0 0% 0% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.4), 0 10px 10px -5px hsl(0 0% 0% / 0.1);
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-gradient-to-br from-background to-muted/20 text-foreground antialiased;
+    background: var(--gradient-background);
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/20;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+}
+
+@layer components {
+  /* Financial card variants */
+  .financial-card {
+    @apply bg-card/95 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:border-border;
+  }
+
+  .financial-card-gradient {
+    @apply relative overflow-hidden;
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.9) 100%);
+  }
+
+  .financial-card-gradient::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent;
+  }
+
+  /* Calendar cell styles */
+  .calendar-cell {
+    @apply relative border border-border/30 cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-md hover:border-border;
+  }
+
+  .calendar-cell-selected {
+    @apply ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+
+  .calendar-cell-today {
+    @apply ring-2 ring-accent ring-offset-2 ring-offset-background;
+  }
+
+  .calendar-cell-in-range {
+    @apply bg-primary/10 border-primary/30;
+  }
+
+  /* Volatility indicators */
+  .volatility-low {
+    @apply bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30;
+  }
+
+  .volatility-medium {
+    @apply bg-gradient-to-br from-yellow-100 to-orange-200 dark:from-yellow-900/30 dark:to-orange-800/30;
+  }
+
+  .volatility-high {
+    @apply bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30;
+  }
+
+  /* Performance indicators */
+  .performance-positive {
+    @apply text-green-600 dark:text-green-400;
+  }
+
+  .performance-negative {
+    @apply text-red-600 dark:text-red-400;
+  }
+
+  .performance-neutral {
+    @apply text-muted-foreground;
+  }
+
+  /* Smooth animations */
+  .smooth-transition {
+    transition: var(--transition-smooth);
+  }
+
+  .bounce-transition {
+    transition: var(--transition-bounce);
+  }
+
+  /* Glass morphism effect */
+  .glass {
+    @apply bg-card/80 backdrop-blur-md border border-border/20;
+  }
+
+  /* Market status indicators */
+  .market-indicator {
+    @apply inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .market-indicator-bullish {
+    @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300;
+  }
+
+  .market-indicator-bearish {
+    @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300;
+  }
+
+  .market-indicator-neutral {
+    @apply bg-muted text-muted-foreground;
+  }
+}
